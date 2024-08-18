@@ -46,7 +46,7 @@ class ResetPasswordEmailRequestSerializer(serializers.Serializer):
             uidb64 = urlsafe_base64_encode(smart_bytes(user.id))
             token = PasswordResetTokenGenerator().make_token(user)
             
-            # Create the reset link
+            # Use FRONTEND_URL from settings
             reset_link = f"{settings.FRONTEND_URL}/password-reset-confirm/{uidb64}/{token}/"
             
             # Send email
@@ -61,4 +61,3 @@ class ResetPasswordEmailRequestSerializer(serializers.Serializer):
             return super().validate(attrs)
         else:
             raise serializers.ValidationError('This email address is not registered.')
-
