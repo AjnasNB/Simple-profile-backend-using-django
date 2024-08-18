@@ -3,6 +3,8 @@ from .models import User
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.encoding import smart_bytes, smart_str, force_str, force_bytes
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.core.mail import send_mail
+from django.conf import settings
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -43,4 +45,20 @@ class ResetPasswordEmailRequestSerializer(serializers.Serializer):
             user = User.objects.get(email=email)
             uidb64 = urlsafe_base64_encode(smart_bytes(user.id))
             token = PasswordResetTokenGenerator().make_token(user)
+            
+            # Create the reset link
+            reset_link = f"{settings.FRONTEND_URL}/password-reset-confirm/{uidb64}/{token}/"
+            
+            # Send email
+            send_mail(
+                subject="Password Reset Request",
+                message=f"Hi {user.name},\nUse the link below to reset your password:\n{reset_link}",
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[user.email],
+                fail_silently=False,
+            )
+            
             return super().validate(attrs)
+        else:
+            raise serializers.ValidationError('This email address is not registered.')
+

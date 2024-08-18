@@ -1,4 +1,4 @@
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group, Permission
 from django.db import models
 
 class UserManager(BaseUserManager):
@@ -30,6 +30,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     profile_pic = models.ImageField(upload_to='profile_pics/', null=True, blank=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    
+    # Adding the necessary relationships to groups and permissions
+    groups = models.ManyToManyField(Group, related_name='user_set', related_query_name='user', blank=True)
+    user_permissions = models.ManyToManyField(Permission, related_name='user_set', related_query_name='user', blank=True)
 
     objects = UserManager()
 
