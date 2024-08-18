@@ -1,5 +1,7 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
+from rest_framework import generics, permissions
+
 from .serializers import RegisterSerializer, UserSerializer, UpdateUserSerializer, ResetPasswordEmailRequestSerializer
 from rest_framework.permissions import IsAuthenticated
 from .models import User
@@ -54,3 +56,7 @@ class UpdateProfileView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class ListUsersView(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAdminUser]  # Only admins can access this view
