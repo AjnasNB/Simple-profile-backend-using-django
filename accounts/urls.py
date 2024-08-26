@@ -20,6 +20,6 @@ urlpatterns = [
     path('password-reset-confirm/<uidb64>/<token>/', PasswordTokenCheckAPI.as_view(), name="password-reset-confirm"),
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('users/', ListUsersView.as_view(), name='user-list'),  # Correct path for listing users
-    path('users/<int:pk>/', DeleteUserView.as_view(), name='user-delete'),  # Correct path for deleting a user
+    path('users/', ListUsersView.as_view(), name='user-list'),
+    path('users/<int:pk>/', DeleteUserView.as_view(), name='user-delete'),
 ]
