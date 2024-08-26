@@ -1,18 +1,20 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
-from rest_framework import generics, permissions
-
-from .serializers import RegisterSerializer, UserSerializer, UpdateUserSerializer, ResetPasswordEmailRequestSerializer
+from rest_framework import permissions
+from rest_framework.views import APIView
+from .serializers import (
+    RegisterSerializer, 
+    UserSerializer, 
+    UpdateUserSerializer, 
+    ResetPasswordEmailRequestSerializer
+)
 from rest_framework.permissions import IsAuthenticated
 from .models import User
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from django.utils.encoding import smart_str, force_str, smart_bytes
-from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
-from django.utils.encoding import smart_str, force_str, smart_bytes, DjangoUnicodeDecodeError
-
-from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
-from django.contrib.auth import get_user_model
+from django.utils.encoding import smart_str
+from django.utils.http import urlsafe_base64_decode
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
 class ChangePasswordView(APIView):
     permission_classes = [IsAuthenticated]
@@ -29,11 +31,15 @@ class ChangePasswordView(APIView):
         user.save()
         return Response({'success': 'Password updated successfully'}, status=status.HTTP_200_OK)
 
+
+@method_decorator(csrf_exempt, name='dispatch')
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
     permission_classes = [] 
 
+
+@method_decorator(csrf_exempt, name='dispatch')
 class UserProfileView(generics.RetrieveUpdateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = UpdateUserSerializer
@@ -41,6 +47,8 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         return self.request.user
 
+
+@method_decorator(csrf_exempt, name='dispatch')
 class RequestPasswordResetEmail(generics.GenericAPIView):
     serializer_class = ResetPasswordEmailRequestSerializer
 
@@ -51,6 +59,8 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
             return Response({'success': 'We have sent you a link to reset your password'}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+@method_decorator(csrf_exempt, name='dispatch')
 class PasswordTokenCheckAPI(generics.GenericAPIView):
     def get(self, request, uidb64, token):
         try:
@@ -62,8 +72,11 @@ class PasswordTokenCheckAPI(generics.GenericAPIView):
 
             return Response({'success': True, 'message': 'Credentials valid', 'uidb64': uidb64, 'token': token}, status=status.HTTP_200_OK)
 
-        except DjangoUnicodeDecodeError as identifier:
+        except DjangoUnicodeDecodeError:
             return Response({'error': 'Token is not valid, please request a new one'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
 class UpdateProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -74,10 +87,22 @@ class UpdateProfileView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-class ListUsersView(generics.ListCreateAPIView):
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ListUsersView(generics.ListCreateAPIView):  # Changed to ListCreateAPIView
     queryset = User.objects.all()
-    serializer_class = UserSerializer
     permission_classes = [permissions.IsAdminUser]  # Only admins can access this view
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return RegisterSerializer  # Use RegisterSerializer for creating a new user
+        return UserSerializer  # Use UserSerializer for listing users
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class DeleteUserView(APIView):
+    permission_classes = [permissions.IsAdminUser]
 
     def delete(self, request, pk=None):
         try:
