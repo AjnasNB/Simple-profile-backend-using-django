@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import User
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from django.utils.encoding import smart_bytes, smart_str, force_str, force_bytes
+from django.utils.encoding import smart_bytes, smart_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.core.mail import send_mail
 from django.conf import settings
@@ -9,14 +9,14 @@ from django.conf import settings
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'email', 'name', 'phone_number', 'employee_id', 'profile_pic']
+        fields = ['id', 'email', 'name', 'phone_number', 'employee_id']
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
     class Meta:
         model = User
-        fields = ['email', 'name', 'phone_number', 'employee_id', 'profile_pic', 'password']
+        fields = ['email', 'name', 'phone_number', 'employee_id', 'password']
 
     def create(self, validated_data):
         user = User.objects.create_user(
@@ -31,7 +31,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 class UpdateUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['email', 'name', 'phone_number', 'employee_id', 'profile_pic']
+        fields = ['email', 'name', 'phone_number', 'employee_id']
 
 class ResetPasswordEmailRequestSerializer(serializers.Serializer):
     email = serializers.EmailField(min_length=2)

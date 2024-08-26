@@ -27,11 +27,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(max_length=255)
     phone_number = models.CharField(max_length=15)
     employee_id = models.CharField(max_length=10)
-    profile_pic = models.ImageField(upload_to='profile_pics/', null=True, blank=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
-    
-    # Adding the necessary relationships to groups and permissions
+
     groups = models.ManyToManyField(Group, related_name='user_set', related_query_name='user', blank=True)
     user_permissions = models.ManyToManyField(Permission, related_name='user_set', related_query_name='user', blank=True)
 
