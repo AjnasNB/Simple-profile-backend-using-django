@@ -90,7 +90,7 @@ class UpdateProfileView(APIView):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class ListUsersView(generics.ListCreateAPIView):  # Changed to ListCreateAPIView
+class ListUsersView(generics.ListCreateAPIView):
     queryset = User.objects.all()
     permission_classes = [permissions.IsAdminUser]  # Only admins can access this view
 
@@ -98,6 +98,17 @@ class ListUsersView(generics.ListCreateAPIView):  # Changed to ListCreateAPIView
         if self.request.method == 'POST':
             return RegisterSerializer  # Use RegisterSerializer for creating a new user
         return UserSerializer  # Use UserSerializer for listing users
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            self.perform_create(serializer)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            # Debugging: Log the errors for the bad request
+            print("Serializer Errors:", serializer.errors)  # Remove this in production
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 @method_decorator(csrf_exempt, name='dispatch')
