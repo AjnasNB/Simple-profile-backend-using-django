@@ -160,7 +160,7 @@ EMAIL_HOST = 'smtp.gmail.com'  # Use your email provider's SMTP server
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'shahanask4801@gmail.com'  # Your email address
-EMAIL_HOST_PASSWORD = 'jjol qncs qpuq rcrf'  # Your email password
+EMAIL_HOST_PASSWORD = ''  # Your email password
 DEFAULT_FROM_EMAIL = 'test@testuser.com'
 
 # Media files
